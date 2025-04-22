@@ -1,0 +1,91 @@
+/* Scroll to navigation container */
+.scroll-to-nav-container {
+  padding: 8px 15px;
+  margin-bottom: 15px; 
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 1em;
+}
+
+/* Navigation title */
+.scroll-to-nav-title {
+  font-weight: bold;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+/* Navigation links container */
+.scroll-to-nav-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Separator between "Top" and other links */
+.scroll-to-nav-separator {
+  color: #ccc;
+  margin: 0 2px;
+}
+
+/* Regular navigation item (desktop) */
+.scroll-to-item {
+  text-decoration: none !important;
+  padding: 5px 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  transition: background 0.2s, border 0.2s;
+  border: 1px solid transparent;
+  color: #333;
+}
+
+/* Hover state for desktop */
+.scroll-to-item:hover:not(.scroll-to-item-active) {
+  background: #e0e0e0;
+}
+
+/* Active state for desktop */
+.scroll-to-item.scroll-to-item-active {
+  background: #e8f0f8;
+  border: 1px solid #b8d0e8;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .scroll-to-nav-container {
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+  }
+  
+  .scroll-to-nav-links {
+    gap: 8px;
+  }
+  
+  .scroll-to-item {
+    text-decoration: underline !important;
+    color: #2b7bcd !important;
+    padding: 2px 4px !important;
+    white-space: nowrap !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    -webkit-tap-highlight-color: transparent !important;
+    font-weight: normal !important;
+  }
+  
+  .scroll-to-item.scroll-to-item-active {
+    font-weight: bold !important;
+    color: #2b7bcd !important;
+    background: transparent !important;
+    border: none !important;
+  }
+}
