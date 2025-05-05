@@ -5,80 +5,62 @@ function addScrollToFeature() {
   const NAV_CONTAINER_ID = 'scroll-to-nav';
   const NAV_ITEM_CLASS = 'scroll-to-item';
   const NAV_ITEM_ACTIVE_CLASS = 'scroll-to-item-active';
-  const NAV_TITLE = 'Jump to:';
-  const MIN_VIEWS_THRESHOLD = 3;
-  const MIN_HEIGHT_RATIO = 1.5;
+  const NAV_TITLE = 'Scroll to:';
+  const STORAGE_KEY = 'scrollToNavVisibility';
   
   if (!SCENE_CONTAINER) return;
-  
-  // Find actual view containers
-  const VIEWS = Array.from(document.querySelectorAll('[id^="view_"]')).filter(el => {
-    // Basic view filtering
-    const isValidView = el.id && 
-           /^view_\d+$/.test(el.id) && 
-           !el.classList.contains('kn-menu') &&
-           (el.classList.contains('kn-view') || 
-            el.querySelector('.kn-view') ||
-            el.hasAttribute('data-view'));
-    
-    if (!isValidView) return false;
-    
-    // Check if view has a header title
-    const hasHeader = Boolean(
-      el.querySelector('.kn-title') || 
-      el.querySelector('.section-header') || 
-      el.querySelector('h1, h2, h3, h4, h5, h6')
-    );
-    
-    if (!hasHeader) return false;
-    
-    // Check if view is visually hidden
-    const rect = el.getBoundingClientRect();
-    const style = window.getComputedStyle(el);
-    
-    const isHidden = 
-      // Check for common CSS hiding techniques
-      style.display === 'none' ||
-      style.visibility === 'hidden' ||
-      style.opacity === '0' ||
-      // Check for "visually hidden" pattern (positioned far off-screen)
-      (Math.abs(rect.left) > 5000 || Math.abs(rect.top) > 5000) ||
-      // Check for zero dimensions with overflow hidden
-      (parseFloat(style.width) <= 1 && parseFloat(style.height) <= 1 && style.overflow === 'hidden') ||
-      // Check for clip technique
-      style.clip === 'rect(0px, 0px, 0px, 0px)' ||
-      style.position === 'absolute' && style.left.includes('-9999');
-    
-    return !isHidden;
-  });
-  
-  // Check if we should add navigation based on views count or page height
-  const hasEnoughViews = VIEWS.length > MIN_VIEWS_THRESHOLD;
-  const sceneHeight = SCENE_CONTAINER.scrollHeight;
-  const heightRatio = sceneHeight / window.innerHeight;
-  const isLongEnough = heightRatio > MIN_HEIGHT_RATIO;
-  
-  if ((!hasEnoughViews && !isLongEnough) || VIEWS.length === 0) return;
   
   // Remove existing navigation if it exists
   const existingNav = document.getElementById(NAV_CONTAINER_ID);
   if (existingNav) existingNav.remove();
+  
+  // Get the visibility state from localStorage
+  let isNavVisible = true;
+  try {
+    const storedVisibility = localStorage.getItem(STORAGE_KEY);
+    if (storedVisibility !== null) {
+      isNavVisible = storedVisibility === 'true';
+    }
+  } catch (e) {
+    // Fallback if localStorage is not available
+  }
   
   // Create navigation container
   const navContainer = document.createElement('div');
   navContainer.id = NAV_CONTAINER_ID;
   navContainer.className = 'scroll-to-nav-container';
   
-  // Add heading
+  // Create a single row layout
+  const navRow = document.createElement('div');
+  navRow.className = 'scroll-to-nav-row';
+  navContainer.appendChild(navRow);
+  
+  // Create title section with toggle below
+  const titleSection = document.createElement('div');
+  titleSection.className = 'scroll-to-nav-title-section';
+  
+  // Add heading and toggle button
   const heading = document.createElement('div');
   heading.textContent = NAV_TITLE;
   heading.className = 'scroll-to-nav-title';
-  navContainer.appendChild(heading);
+  titleSection.appendChild(heading);
+  
+  const toggleButton = document.createElement('button');
+  toggleButton.type = 'button';
+  toggleButton.className = 'scroll-to-nav-toggle';
+  toggleButton.setAttribute('aria-label', isNavVisible ? 'Hide navigation' : 'Show navigation');
+  toggleButton.textContent = isNavVisible ? '< hide' : '> show';
+  titleSection.appendChild(toggleButton);
+  
+  navRow.appendChild(titleSection);
   
   // Create link container
   const linkContainer = document.createElement('div');
   linkContainer.className = 'scroll-to-nav-links';
-  navContainer.appendChild(linkContainer);
+  if (!isNavVisible) {
+    linkContainer.style.display = 'none';
+  }
+  navRow.appendChild(linkContainer);
   
   // Store links for later use
   const navLinks = {};
@@ -99,7 +81,22 @@ function addScrollToFeature() {
   linkContainer.appendChild(topLink);
   navLinks['top'] = topLink;
   
-  // Add separator
+  // Find views on the page
+  const VIEWS = Array.from(document.querySelectorAll('[id^="view_"]')).filter(el => {
+    if (!el.id || !el.querySelector('h1, h2, h3, h4, h5, h6, .kn-title, .section-header')) {
+      return false;
+    }
+    
+    const style = window.getComputedStyle(el);
+    const isHidden = 
+      style.display === 'none' ||
+      style.visibility === 'hidden' ||
+      style.opacity === '0';
+    
+    return !isHidden;
+  });
+  
+  // Add separator if we have views
   if (VIEWS.length > 0) {
     const separator = document.createElement('span');
     separator.textContent = '|';
@@ -110,7 +107,10 @@ function addScrollToFeature() {
   // Add links for each view
   VIEWS.forEach(view => {
     const viewId = view.id;
-    const viewName = getViewName(view, viewId);
+    
+    // Get view name
+    const heading = view.querySelector('.kn-title, .section-header, h1, h2, h3, h4, h5, h6');
+    let viewName = heading && heading.textContent.trim() ? heading.textContent.trim() : `View ${viewId.replace('view_', '')}`;
     
     const link = document.createElement('a');
     link.href = '#';
@@ -133,6 +133,25 @@ function addScrollToFeature() {
     navLinks[viewId] = link;
   });
   
+  // Toggle visibility event
+  toggleButton.addEventListener('click', function() {
+    isNavVisible = !isNavVisible;
+    
+    // Update toggle button text and aria-label
+    toggleButton.textContent = isNavVisible ? '< hide' : '> show';
+    toggleButton.setAttribute('aria-label', isNavVisible ? 'Hide navigation' : 'Show navigation');
+    
+    // Show/hide the link container
+    linkContainer.style.display = isNavVisible ? '' : 'none';
+    
+    // Save state to localStorage
+    try {
+      localStorage.setItem(STORAGE_KEY, String(isNavVisible));
+    } catch (e) {
+      // Silent fail if localStorage isn't available
+    }
+  });
+  
   // Insert at the beginning of the scene
   SCENE_CONTAINER.insertBefore(navContainer, SCENE_CONTAINER.firstChild);
   
@@ -144,23 +163,35 @@ function addScrollToFeature() {
     if (activeLink) activeLink.classList.add(NAV_ITEM_ACTIVE_CLASS);
   }
   
-  // Get view name from various possible sources
-  function getViewName(view, viewId) {
-    const heading = view.querySelector('.kn-title') || 
-                   view.querySelector('.section-header') || 
-                   view.querySelector('h1, h2, h3, h4, h5, h6');
-    
-    if (heading && heading.textContent.trim()) {
-      return heading.textContent.trim();
-    }
-    
-    const viewAttr = view.getAttribute('data-view');
-    if (viewAttr) {
-      return `View ${viewAttr.replace(/view_/i, '')}`;
-    }
-    
-    return `View ${viewId.replace('view_', '')}`;
+  // Function to check if dropdown menus are open
+  function areDropdownMenusOpen() {
+    return document.querySelectorAll('.knHeader__menu-dropdown-list--open').length > 0;
   }
+  
+  // Update navigation visibility based on dropdown menus
+  function updateNavigationVisibility() {
+    if (areDropdownMenusOpen()) {
+      navContainer.style.visibility = 'hidden';
+    } else {
+      navContainer.style.visibility = 'visible';
+    }
+  }
+  
+  // Setup a mutation observer to watch for dropdown menu changes
+  const headerElement = document.querySelector('.knHeader');
+  if (headerElement) {
+    const headerObserver = new MutationObserver(updateNavigationVisibility);
+    
+    headerObserver.observe(headerElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+  
+  // Initial check for open dropdowns
+  updateNavigationVisibility();
   
   // Update active state based on scroll position
   function updateActiveStateBasedOnScroll() {
