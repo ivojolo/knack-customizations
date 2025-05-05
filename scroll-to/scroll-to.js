@@ -13,12 +13,43 @@ function addScrollToFeature() {
   
   // Find actual view containers
   const VIEWS = Array.from(document.querySelectorAll('[id^="view_"]')).filter(el => {
-    return el.id && 
+    // Basic view filtering
+    const isValidView = el.id && 
            /^view_\d+$/.test(el.id) && 
            !el.classList.contains('kn-menu') &&
            (el.classList.contains('kn-view') || 
             el.querySelector('.kn-view') ||
             el.hasAttribute('data-view'));
+    
+    if (!isValidView) return false;
+    
+    // Check if view has a header title
+    const hasHeader = Boolean(
+      el.querySelector('.kn-title') || 
+      el.querySelector('.section-header') || 
+      el.querySelector('h1, h2, h3, h4, h5, h6')
+    );
+    
+    if (!hasHeader) return false;
+    
+    // Check if view is visually hidden
+    const rect = el.getBoundingClientRect();
+    const style = window.getComputedStyle(el);
+    
+    const isHidden = 
+      // Check for common CSS hiding techniques
+      style.display === 'none' ||
+      style.visibility === 'hidden' ||
+      style.opacity === '0' ||
+      // Check for "visually hidden" pattern (positioned far off-screen)
+      (Math.abs(rect.left) > 5000 || Math.abs(rect.top) > 5000) ||
+      // Check for zero dimensions with overflow hidden
+      (parseFloat(style.width) <= 1 && parseFloat(style.height) <= 1 && style.overflow === 'hidden') ||
+      // Check for clip technique
+      style.clip === 'rect(0px, 0px, 0px, 0px)' ||
+      style.position === 'absolute' && style.left.includes('-9999');
+    
+    return !isHidden;
   });
   
   // Check if we should add navigation based on views count or page height
