@@ -8,17 +8,46 @@
   background-color: #fff;
   z-index: 100;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 1em;
+}
+
+/* Single row layout */
+.scroll-to-nav-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  font-size: 1em;
+  gap: 15px;
+}
+
+/* Title section with toggle underneath */
+.scroll-to-nav-title-section {
+  display: flex;
+  flex-direction: column;
+  min-width: 85px;
 }
 
 /* Navigation title */
 .scroll-to-nav-title {
   font-weight: bold;
-  margin-right: 10px;
   white-space: nowrap;
+  margin-bottom: 0;
+}
+
+/* Toggle button */
+.scroll-to-nav-toggle {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.75em;
+  padding: 0;
+  text-align: left;
+  transition: color 0.2s;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.scroll-to-nav-toggle:hover {
+  color: #666;
 }
 
 /* Navigation links container */
