@@ -1,120 +1,130 @@
-/* Scroll to navigation container */
-.scroll-to-nav-container {
-  padding: 8px 15px;
-  margin-bottom: 15px; 
-  border-bottom: 1px solid #eee;
-  position: sticky;
-  top: 0;
-  background-color: #fff;
-  z-index: 100;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-size: 1em;
-}
-
-/* Single row layout */
-.scroll-to-nav-row {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-/* Title section with toggle underneath */
-.scroll-to-nav-title-section {
-  display: flex;
-  flex-direction: column;
-  min-width: 85px;
-}
-
-/* Navigation title */
-.scroll-to-nav-title {
-  font-weight: bold;
-  white-space: nowrap;
-  margin-bottom: 0;
-}
-
-/* Toggle button */
-.scroll-to-nav-toggle {
-  background: none;
-  border: none;
-  color: #999;
-  cursor: pointer;
-  font-size: 0.75em;
-  padding: 0;
-  text-align: left;
-  transition: color 0.2s;
-  white-space: nowrap;
-  line-height: 1;
-}
-
-.scroll-to-nav-toggle:hover {
-  color: #666;
-}
-
-/* Navigation links container */
-.scroll-to-nav-links {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-/* Separator between "Top" and other links */
-.scroll-to-nav-separator {
-  color: #ccc;
-  margin: 0 2px;
-}
-
-/* Regular navigation item (desktop) */
-.scroll-to-item {
-  text-decoration: none !important;
-  padding: 5px 10px;
-  background: #f5f5f5;
-  border-radius: 4px;
-  transition: background 0.2s, border 0.2s;
-  border: 1px solid transparent;
-  color: #333;
-}
-
-/* Hover state for desktop */
-.scroll-to-item:hover:not(.scroll-to-item-active) {
-  background: #e0e0e0;
-}
-
-/* Active state for desktop */
-.scroll-to-item.scroll-to-item-active {
-  background: #e8f0f8;
-  border: 1px solid #b8d0e8;
-}
-
-/* Mobile styles */
-@media (max-width: 768px) {
-  .scroll-to-nav-container {
-    padding: 5px 10px;
-    margin-bottom: 10px;
-    font-size: 0.9em;
+(function() {
+  // First, remove any previous test style to avoid conflicts
+  const oldStyle = document.getElementById('scroll-to-mobile-fix');
+  if (oldStyle) {
+    oldStyle.remove();
   }
   
-  .scroll-to-nav-links {
-    gap: 8px;
+  // Direct DOM manipulation to restructure if needed
+  const container = document.querySelector('.scroll-to-nav-container');
+  const navRow = document.querySelector('.scroll-to-nav-row');
+  const titleSection = document.querySelector('.scroll-to-nav-title-section');
+  const linksContainer = document.querySelector('.scroll-to-nav-links');
+  
+  if (container && navRow && titleSection && linksContainer) {
+    // Force direct manipulation with important inline styles
+    navRow.setAttribute('style', 'display: flex !important; flex-direction: row !important; align-items: center !important;');
+    titleSection.setAttribute('style', 'display: inline-flex !important; align-items: center !important; margin-right: 8px !important;');
+    linksContainer.setAttribute('style', 'display: inline-flex !important; flex-wrap: wrap !important; align-items: center !important;');
+    
+    // Ensure the toggle button is at the right level
+    const toggleButton = document.querySelector('.scroll-to-nav-toggle');
+    if (toggleButton) {
+      toggleButton.setAttribute('style', 'font-size: 0.75em !important; margin-left: 4px !important;');
+    }
   }
   
-  .scroll-to-item {
-    text-decoration: underline !important;
-    color: #2b7bcd !important;
-    padding: 2px 4px !important;
-    white-space: nowrap !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    -webkit-tap-highlight-color: transparent !important;
-    font-weight: normal !important;
+  // Add extremely specific CSS
+  const fixStyles = document.createElement('style');
+  fixStyles.id = 'scroll-to-mobile-fix';
+  
+  fixStyles.textContent = `
+  @media (max-width: 768px) {
+    /* Container */
+    .scroll-to-nav-container {
+      padding: 3px 8px !important;
+      margin-bottom: 5px !important;
+    }
+    
+    /* FORCE row layout no matter what */
+    body .scroll-to-nav-row,
+    html body .scroll-to-nav-row,
+    div.scroll-to-nav-row,
+    .scroll-to-nav-container .scroll-to-nav-row {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      width: auto !important;
+      max-width: 100% !important;
+      flex-wrap: wrap !important;
+    }
+    
+    /* Title section stays inline */
+    .scroll-to-nav-title-section {
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 4px !important;
+      margin-right: 8px !important;
+      flex: 0 0 auto !important;
+    }
+    
+    /* Title text */
+    .scroll-to-nav-title {
+      margin: 0 !important;
+      font-size: 0.9em !important;
+      white-space: nowrap !important;
+    }
+    
+    /* Toggle button */
+    .scroll-to-nav-toggle {
+      font-size: 0.75em !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      white-space: nowrap !important;
+    }
+    
+    /* Links container */
+    .scroll-to-nav-links {
+      display: inline-flex !important;
+      flex-wrap: wrap !important;
+      gap: 4px !important;
+      align-items: center !important;
+      margin: 0 !important;
+    }
+    
+    /* Make links smaller */
+    .scroll-to-item {
+      padding: 2px 5px !important;
+      font-size: 0.9em !important;
+      margin: 1px !important;
+      white-space: nowrap !important;
+      flex: 0 0 auto !important;
+      max-width: fit-content !important;
+    }
+    
+    /* No separator */
+    .scroll-to-nav-separator {
+      display: none !important;
+    }
+  }
+  `;
+  document.head.appendChild(fixStyles);
+  
+  // Fix toggle button functionality
+  const toggleButton = document.querySelector('.scroll-to-nav-toggle');
+  const linkContainer = document.querySelector('.scroll-to-nav-links');
+  
+  if (toggleButton && linkContainer) {
+    // Clean up old listeners
+    const newToggle = toggleButton.cloneNode(true);
+    toggleButton.parentNode.replaceChild(newToggle, toggleButton);
+    
+    // Reinstall toggle functionality
+    newToggle.addEventListener('click', function() {
+      const isVisible = linkContainer.style.display !== 'none';
+      linkContainer.style.display = isVisible ? 'none' : '';
+      newToggle.textContent = isVisible ? '> show' : '< hide';
+      newToggle.setAttribute('aria-label', isVisible ? 'Show navigation' : 'Hide navigation');
+      
+      // Save state to localStorage
+      try {
+        localStorage.setItem('scrollToNavVisibility', String(!isVisible));
+      } catch (e) {
+        // Silent fail
+      }
+    });
   }
   
-  .scroll-to-item.scroll-to-item-active {
-    font-weight: bold !important;
-    color: #2b7bcd !important;
-    background: transparent !important;
-    border: none !important;
-  }
-}
+  console.log('Applied optimized single-line layout');
+})();
